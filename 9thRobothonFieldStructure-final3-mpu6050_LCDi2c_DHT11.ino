@@ -60,21 +60,11 @@ void loop() {
     lcd.print("Weather Station");
     delay(500);
   }
-
-  // Display "Object detected!" on LCD
+  // Display temperature and humidity on LCD
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Object detected!");
-  delay(500);
-  lcd.clear();
-  lcd.setCursor(0, 0);
-
-  // Collect temperature and humidity data from DHT11
   float temperature = dht.readTemperature();
   float humidity = dht.readHumidity();
-
-  // Display temperature and humidity on LCD
-  lcd.setCursor(0, 0);
   lcd.print("Temp: ");
   lcd.print(temperature);
   lcd.print("°C");
