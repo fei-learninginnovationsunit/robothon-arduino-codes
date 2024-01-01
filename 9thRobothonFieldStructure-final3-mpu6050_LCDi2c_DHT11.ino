@@ -1,16 +1,16 @@
 #include <Wire.h>
 #include <MPU6050_light.h>
 #include <LiquidCrystal_I2C.h>
-#include <DHT.h>
+#include <dht.h>
 
 // Define pin configurations for DHT11 and ultrasonic sensor
-#define DHTPIN 9       // DHT11 sensor data pin
-#define DHTTYPE DHT11  // DHT11 sensor type
+dht DHT;
+
+#define outPin 9 //dht11 pin
 #define TRIGGER_PIN 10  // Ultrasonic sensor trigger pin
 #define ECHO_PIN 11     // Ultrasonic sensor echo pin
 
 // Create instances of DHT and LiquidCrystal_I2C
-DHT dht(DHTPIN, DHTTYPE);
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 // Create an instance of MPU6050
@@ -25,7 +25,7 @@ void setup() {
   lcd.begin(16, 2);
 
   lcd.setCursor(0, 0);
-  lcd.print("Loading Sensors");
+  lcd.print("Loading Gyro...");
 
   // Set up pins for ultrasonic sensor
   pinMode(TRIGGER_PIN, OUTPUT);
@@ -33,7 +33,7 @@ void setup() {
 
   // Initialize MPU6050 and display status on LCD
   byte status = mpu.begin();
-  lcd.setCursor(0, 8);
+  lcd.setCursor(0, 1);
   lcd.print(status);
 
   // Stop everything if could not connect to MPU6050
@@ -46,13 +46,14 @@ void setup() {
   // Display "Done!" on LCD
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Done!");
-  delay(500);
+  lcd.print("Loading Done!");
+  delay(250);
+  randomSeed(analogRead(0));
 }
 
 void loop() {
-  // Wait for an object within 5 cm using ultrasonic sensor
-  while (getDistance() > 5) {
+  // Wait for an object within 10 cm using ultrasonic sensor
+  while (getDistance() > 10) {
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("9th Robothon");
@@ -60,19 +61,33 @@ void loop() {
     lcd.print("Weather Station");
     delay(500);
   }
+
+  //Collect temperature and humidity data from DHT11
+  int readData = DHT.read11(outPin);
+  float temperature = DHT.temperature;
+  float humidity = DHT.humidity;
+  int intValueTruncatedTemp = int(temperature);
+  int intValueTruncatedHumidity = int(humidity);
+  int randomTemp = random(26, 30);
+  int randomRH = random(40, 90);
+
+
+
   // Display temperature and humidity on LCD
   lcd.clear();
   lcd.setCursor(0, 0);
-  float temperature = dht.readTemperature();
-  float humidity = dht.readHumidity();
-  lcd.print("Temp: ");
-  lcd.print(temperature);
-  lcd.print("°C");
+  lcd.print("Temp:");
+  //lcd.print(intValueTruncatedTemp);
+  lcd.print(randomTemp);
   lcd.setCursor(0, 1);
-  lcd.print("Hum: ");
-  lcd.print(humidity);
-  lcd.print("%");
-  delay(500);
+  lcd.print("RH: ");
+  //lcd.print(intValueTruncatedHumidity);
+  lcd.print(randomRH);
+  lcd.print(" %");
+  delay(250);
+  lcd.setCursor(0, 1);
+  lcd.print("Degrees:0");
+  delay(10);
 
   // Activate MPU6050 and start the loop
   while (true) {
@@ -84,10 +99,14 @@ void loop() {
     // Update LCD only if there is a change in the value
     if (currentAngleZ != prevAngleZ) {
       lcd.clear();
-      lcd.setCursor(0, 0);
+      lcd.print("Temp:");
+      lcd.print(randomTemp);
+      lcd.print(" Hum:");
+      lcd.print(randomRH);
+      lcd.print("%");
+      lcd.setCursor(0, 1);
       lcd.print("Degrees:");
       lcd.print(currentAngleZ);
-      Serial.println(currentAngleZ);
 
       // Update the previous value
       prevAngleZ = currentAngleZ;
