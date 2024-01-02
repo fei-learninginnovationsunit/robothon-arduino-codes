@@ -25,7 +25,7 @@ void setup() {
   lcd.begin(16, 2);
 
   lcd.setCursor(0, 0);
-  lcd.print("Loading Gyro...");
+  lcd.print("Loading Gyro....");
 
   // Set up pins for ultrasonic sensor
   pinMode(TRIGGER_PIN, OUTPUT);
@@ -35,6 +35,7 @@ void setup() {
   byte status = mpu.begin();
   lcd.setCursor(0, 1);
   lcd.print(status);
+  lcd.print(" Don't Move !!!")
 
   // Stop everything if could not connect to MPU6050
   while (status != 0) {}
